@@ -75,6 +75,7 @@ set(python_srcs
    src/rectangles.cpp
    src/object_detection.cpp
    src/shape_predictor.cpp
+   src/shape_predictor_TIF.cpp
    src/correlation_tracker.cpp
    src/face_recognition.cpp
    src/cnn_face_detector.cpp

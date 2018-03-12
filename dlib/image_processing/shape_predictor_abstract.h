@@ -110,6 +110,18 @@ namespace dlib
                 - Calling this function is equivalent to calling (*this)(img, rect, ignored)
                   where the 3d argument is discarded.
         !*/
+        
+        template <typename image_type>
+        full_object_detection operator()(
+           const image_type& img,
+           const full_object_detection& detection
+        ) const;
+        /*!
+         requires
+         - image_type == an image object that implements the interface defined in
+         dlib/image_processing/generic_image.h
+         ensures
+         !*/
 
     };
 

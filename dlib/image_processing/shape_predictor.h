@@ -334,19 +334,46 @@ namespace dlib
                     num += forests[iter][i].num_leaves();
             return num;
         }
-
+        
+        // CTH: maintain original rect only defintion
+        template <typename image_type>
+        full_object_detection operator()(
+             const image_type& img,
+             const rectangle& rect
+        ) const
+        {
+            return (*this)(img, rect, initial_shape);
+        }
+        
+        // CTH: new operator which takes full_object_detection
         template <typename image_type>
         full_object_detection operator()(
             const image_type& img,
-            const rectangle& rect
+            const rectangle& rect,
+            const full_object_detection& detection
+        ) const
+        {
+            matrix<float,0,1> shape;
+            matrix<float,0,1> present;
+            object_to_shape(detection, shape, present);
+            // could use detection.get_rect() here instead, but use annotated box as with default method
+            return (*this)(img, rect, shape);
+        }
+        
+        // CTH: add initial shape to default operator
+        template <typename image_type>
+        full_object_detection operator()(
+            const image_type& img,
+            const rectangle& rect,
+            const matrix<float,0,1>& initial_shape_
         ) const
         {
             using namespace impl;
-            matrix<float,0,1> current_shape = initial_shape;
+            matrix<float,0,1> current_shape = initial_shape_;
             std::vector<float> feature_pixel_values;
             for (unsigned long iter = 0; iter < forests.size(); ++iter)
             {
-                extract_feature_pixel_values(img, rect, current_shape, initial_shape,
+                extract_feature_pixel_values(img, rect, current_shape, initial_shape_,
                                              anchor_idx[iter], deltas[iter], feature_pixel_values);
                 unsigned long leaf_idx;
                 // evaluate all the trees at this level of the cascade.
@@ -361,22 +388,34 @@ namespace dlib
                 parts[i] = tform_to_img(location(current_shape, i));
             return full_object_detection(rect, parts);
         }
+        
+        // CTH: orignal def
+        template <typename image_type, typename T, typename U>
+        full_object_detection operator()(
+             const image_type& img,
+             const rectangle& rect,
+             std::vector<std::pair<T,U> >& feats
+        ) const
+        {
+            return (*this)(img, rect, feats, initial_shape);
+        }
 
         template <typename image_type, typename T, typename U>
         full_object_detection operator()(
             const image_type& img,
             const rectangle& rect,
-            std::vector<std::pair<T,U> >& feats
+            std::vector<std::pair<T,U> >& feats,
+            const matrix<float,0,1>& initial_shape_ // CTH: add initial shape
         ) const
         {
             feats.clear();
             using namespace impl;
-            matrix<float,0,1> current_shape = initial_shape;
+            matrix<float,0,1> current_shape = initial_shape_;
             std::vector<float> feature_pixel_values;
             unsigned long feat_offset = 0;
             for (unsigned long iter = 0; iter < forests.size(); ++iter)
             {
-                extract_feature_pixel_values(img, rect, current_shape, initial_shape,
+                extract_feature_pixel_values(img, rect, current_shape, initial_shape_,
                                              anchor_idx[iter], deltas[iter], feature_pixel_values);
                 // evaluate all the trees at this level of the cascade.
                 for (unsigned long i = 0; i < forests[iter].size(); ++i)
@@ -406,6 +445,40 @@ namespace dlib
         std::vector<std::vector<impl::regression_tree> > forests;
         std::vector<std::vector<unsigned long> > anchor_idx; 
         std::vector<std::vector<dlib::vector<float,2> > > deltas;
+        
+        static void object_to_shape (
+             const full_object_detection& obj,
+             matrix<float,0,1>& shape,
+             matrix<float,0,1>& present // a mask telling which elements of #shape are present.
+        )
+        {
+            shape.set_size(obj.num_parts()*2);
+            present.set_size(obj.num_parts()*2);
+            const point_transform_affine tform_from_img = impl::normalizing_tform(obj.get_rect());
+            for (unsigned long i = 0; i < obj.num_parts(); ++i)
+            {
+                if (obj.part(i) != OBJECT_PART_NOT_PRESENT)
+                {
+                    vector<float,2> p = tform_from_img(obj.part(i));
+                    shape(2*i)   = p.x();
+                    shape(2*i+1) = p.y();
+                    present(2*i)   = 1;
+                    present(2*i+1) = 1;
+                    
+                    if (length(p) > 100)
+                    {
+                        std::cout << "Warning, one of your objects has parts that are way outside its bounding box!  This is probably an error in your annotation." << std::endl;
+                    }
+                }
+                else
+                {
+                    shape(2*i)   = 0;
+                    shape(2*i+1) = 0;
+                    present(2*i)   = 0;
+                    present(2*i+1) = 0;
+                }
+            }
+        }
     };
 
     inline void serialize (const shape_predictor& item, std::ostream& out)

@@ -21,6 +21,8 @@
 #include "image_processing/scan_fhog_pyramid.h"
 #include "image_processing/shape_predictor.h"
 #include "image_processing/shape_predictor_trainer.h"
+#include "image_processing/shape_predictor_TIF.h"
+#include "image_processing/shape_predictor_TIF_trainer.h"
 #include "image_processing/correlation_tracker.h"
 
 #endif // DLIB_IMAGE_PROCESSInG_H_h_

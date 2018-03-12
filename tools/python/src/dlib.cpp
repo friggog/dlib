@@ -22,6 +22,7 @@ void bind_image_classes(py::module& m);
 void bind_rectangles(py::module& m);
 void bind_object_detection(py::module& m);
 void bind_shape_predictors(py::module& m);
+void bind_shape_predictors_TIF(py::module& m);
 void bind_correlation_tracker(py::module& m);
 void bind_face_recognition(py::module& m);
 void bind_cnn_face_detection(py::module& m);
@@ -94,6 +95,7 @@ PYBIND11_MODULE(dlib, m)
     bind_rectangles(m);
     bind_object_detection(m);
     bind_shape_predictors(m);
+    bind_shape_predictors_TIF(m);
     bind_correlation_tracker(m);
     bind_face_recognition(m);
     bind_cnn_face_detection(m);
