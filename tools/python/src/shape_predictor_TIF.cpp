@@ -5,6 +5,7 @@
 #include <dlib/python.h>
 #include <dlib/geometry.h>
 #include <dlib/image_processing.h>
+#include "shape_predictor.h"
 #include "shape_predictor_TIF.h"
 #include "conversion.h"
 
@@ -71,7 +72,7 @@ void save_shape_predictor_TIF(const shape_predictor_TIF& predictor, const std::s
 inline shape_predictor_TIF train_shape_predictor_TIF_on_images_py (
         const py::list& pyimages,
         const py::list& pydetections,
-        const shape_predictor_TIF_training_options& options
+        const shape_predictor_training_options& options
 )
 {
     const unsigned long num_images = py::len(pyimages);
@@ -145,39 +146,6 @@ inline double test_shape_predictor_TIF_with_images_no_scales_py (
 
 void bind_shape_predictors_TIF(py::module &m)
 {
-    {
-    typedef shape_predictor_TIF_training_options type;
-    py::class_<type>(m, "shape_predictor_TIF_training_options",
-        "This object is a container for the options to the train_shape_predictor_TIF() routine.")
-        .def(py::init())
-        .def_readwrite("be_verbose", &type::be_verbose,
-                      "If true, train_shape_predictor_TIF() will print out a lot of information to stdout while training.")
-        .def_readwrite("cascade_depth", &type::cascade_depth,
-                      "The number of cascades created to train the model with.")
-        .def_readwrite("tree_depth", &type::tree_depth,
-                      "The depth of the trees used in each cascade. There are pow(2, get_tree_depth()) leaves in each tree")
-        .def_readwrite("num_trees_per_cascade_level", &type::num_trees_per_cascade_level,
-                      "The number of trees created for each cascade.")
-        .def_readwrite("nu", &type::nu,
-                      "The regularization parameter.  Larger values of this parameter \
-                       will cause the algorithm to fit the training data better but may also \
-                       cause overfitting.  The value must be in the range (0, 1].")
-        .def_readwrite("oversampling_amount", &type::oversampling_amount,
-                      "The number of randomly selected initial starting points sampled for each training example")
-        .def_readwrite("feature_pool_size", &type::feature_pool_size,
-                      "Number of pixels used to generate features for the random trees.")
-        .def_readwrite("lambda_param", &type::lambda_param,
-                      "Controls how tight the feature sampling should be. Lower values enforce closer features.")
-        .def_readwrite("num_test_splits", &type::num_test_splits,
-                      "Number of split features at each node to sample. The one that gives the best split is chosen.")
-        .def_readwrite("feature_pool_region_padding", &type::feature_pool_region_padding,
-                      "Size of region within which to sample features for the feature pool, \
-                      e.g a padding of 0.5 would cause the algorithm to sample pixels from a box that was 2x2 pixels")
-        .def_readwrite("random_seed", &type::random_seed,
-                      "The random seed used by the internal random number generator")
-        .def("__str__", &::print_shape_predictor_TIF_training_options)
-        .def(py::pickle(&getstate<type>, &setstate<type>));
-    }
     {
     typedef shape_predictor_TIF type;
     py::class_<type, std::shared_ptr<type>>(m, "shape_predictor_TIF",

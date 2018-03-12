@@ -1,7 +1,7 @@
 // Copyright (C) 2014  Davis E. King (davis@dlib.net)
 // License: Boost Software License   See LICENSE.txt for the full license.
-#ifndef DLIB_SHAPE_PREDICTOR_H__
-#define DLIB_SHAPE_PREDICTOR_H__
+#ifndef DLIB_SHAPE_PREDICTOR_TIF_H__
+#define DLIB_SHAPE_PREDICTOR_TIF_H__
 
 #include "dlib/string.h"
 #include "dlib/geometry.h"
@@ -14,130 +14,12 @@ namespace dlib
 {
 
 // ----------------------------------------------------------------------------------------
-
-    struct shape_predictor_TIF_training_options
-    {
-        shape_predictor_TIF_training_options()
-        {
-            be_verbose = false;
-            cascade_depth = 10;
-            tree_depth = 4;
-            num_trees_per_cascade_level = 500;
-            nu = 0.1;
-            oversampling_amount = 20;
-            feature_pool_size = 400;
-            lambda_param = 0.1;
-            num_test_splits = 20;
-            feature_pool_region_padding = 0;
-            random_seed = "";
-        }
-
-        bool be_verbose;
-        unsigned long cascade_depth;
-        unsigned long tree_depth;
-        unsigned long num_trees_per_cascade_level;
-        double nu;
-        unsigned long oversampling_amount;
-        unsigned long feature_pool_size;
-        double lambda_param;
-        unsigned long num_test_splits;
-        double feature_pool_region_padding;
-        std::string random_seed;
-    };
-
-    inline void serialize (
-        const shape_predictor_TIF_training_options& item,
-        std::ostream& out
-    )
-    {
-        try
-        {
-            serialize(item.be_verbose,out);
-            serialize(item.cascade_depth,out);
-            serialize(item.tree_depth,out);
-            serialize(item.num_trees_per_cascade_level,out);
-            serialize(item.nu,out);
-            serialize(item.oversampling_amount,out);
-            serialize(item.feature_pool_size,out);
-            serialize(item.lambda_param,out);
-            serialize(item.num_test_splits,out);
-            serialize(item.feature_pool_region_padding,out);
-            serialize(item.random_seed,out);
-        }
-        catch (serialization_error& e)
-        {
-            throw serialization_error(e.info + "\n   while serializing an object of type shape_predictor_TIF_training_options");
-        }
-    }
-
-    inline void deserialize (
-        shape_predictor_TIF_training_options& item,
-        std::istream& in
-    )
-    {
-        try
-        {
-            deserialize(item.be_verbose,in);
-            deserialize(item.cascade_depth,in);
-            deserialize(item.tree_depth,in);
-            deserialize(item.num_trees_per_cascade_level,in);
-            deserialize(item.nu,in);
-            deserialize(item.oversampling_amount,in);
-            deserialize(item.feature_pool_size,in);
-            deserialize(item.lambda_param,in);
-            deserialize(item.num_test_splits,in);
-            deserialize(item.feature_pool_region_padding,in);
-            deserialize(item.random_seed,in);
-        }
-        catch (serialization_error& e)
-        {
-            throw serialization_error(e.info + "\n   while deserializing an object of type shape_predictor_TIF_training_options");
-        }
-    }
-
-    string print_shape_predictor_TIF_training_options(const shape_predictor_TIF_training_options& o)
-    {
-        std::ostringstream sout;
-        sout << "shape_predictor_TIF_training_options("
-            << "be_verbose=" << o.be_verbose << ","
-            << "cascade_depth=" << o.cascade_depth << ","
-            << "tree_depth=" << o.tree_depth << ","
-            << "num_trees_per_cascade_level=" << o.num_trees_per_cascade_level << ","
-            << "nu=" << o.nu << ","
-            << "oversampling_amount=" << o.oversampling_amount << ","
-            << "feature_pool_size=" << o.feature_pool_size << ","
-            << "lambda_param=" << o.lambda_param << ","
-            << "num_test_splits=" << o.num_test_splits << ","
-            << "feature_pool_region_padding=" << o.feature_pool_region_padding << ","
-            << "random_seed=" << o.random_seed << ","
-        << ")";
-        return sout.str();
-    }
-
-// ----------------------------------------------------------------------------------------
-    
-    namespace impl
-    {
-        inline bool contains_any_detections (
-                                             const std::vector<std::vector<full_object_detection> >& detections
-                                             )
-        {
-            for (unsigned long i = 0; i < detections.size(); ++i)
-            {
-                if (detections[i].size() != 0)
-                    return true;
-            }
-            return false;
-        }
-    }
-
-// ----------------------------------------------------------------------------------------
     
     template <typename image_array>
     inline shape_predictor_TIF train_shape_predictor_TIF_on_images (
         image_array& images,
         std::vector<std::vector<full_object_detection> >& detections,
-        const shape_predictor_TIF_training_options& options
+        const shape_predictor_training_options& options
     )
     {
         if (options.lambda_param <= 0)
@@ -189,7 +71,7 @@ namespace dlib
     inline void train_shape_predictor_TIF (
         const std::string& dataset_filename,
         const std::string& predictor_output_filename,
-        const shape_predictor_TIF_training_options& options
+        const shape_predictor_training_options& options
     )
     {
         dlib::array<array2d<unsigned char> > images;
@@ -248,5 +130,5 @@ namespace dlib
 
 }
 
-#endif // DLIB_SHAPE_PREDICTOR_H__
+#endif // DLIB_SHAPE_PREDICTOR_TIF_H__
 

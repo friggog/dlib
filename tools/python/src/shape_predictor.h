@@ -99,7 +99,7 @@ namespace dlib
         }
     }
 
-    string print_shape_predictor_training_options(const shape_predictor_training_options& o)
+    inline string print_shape_predictor_training_options(const shape_predictor_training_options& o)
     {
         std::ostringstream sout;
         sout << "shape_predictor_training_options("
